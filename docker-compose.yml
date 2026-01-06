@@ -1,5 +1,5 @@
-version: '3'
 services:
+  # ======================= Supporting Services =======================
   postgres:
     container_name: postgres
     image: postgres
@@ -15,6 +15,7 @@ services:
     networks:
       - postgres
     restart: unless-stopped
+
   mongodb:
     container_name: mongodb
     image: mongo
@@ -25,6 +26,7 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=rootuser
       - MONGO_INITDB_ROOT_PASSWORD=rootpass
+
   mongo-express:
     container_name: mongo-express
     image: mongo-express
@@ -41,6 +43,7 @@ services:
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
+
   kafka:
     container_name: kafka
     image: wurstmeister/kafka
@@ -49,7 +52,6 @@ services:
     environment:
       KAFKA_ADVERTISED_HOST_NAME: localhost
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-
     depends_on:
       - zookeeper
 
@@ -63,6 +65,7 @@ services:
       - "8181:8080"
     command:
       - start-dev
+
   zipkin:
     container_name: zipkin
     image: openzipkin/zipkin
@@ -75,11 +78,55 @@ services:
     ports:
       - "6379:6379"
 
+  # ======================= Backend / Frontend =======================
+  eureka-server:
+    build: ./eureka-server
+    image: cinevision-eureka-server
+    ports:
+      - "8761:8761"
+
+  api-gateway:
+    build: ./api-gateway
+    image: cinevision-api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+
+  userService:
+    build: ./userService
+    image: cinevision-user-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka-server
+
+  movieService:
+    build: ./movieService
+    image: cinevision-movie-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka-server
+
+  emailService:
+    build: ./emailService
+    image: cinevision-email-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - eureka-server
+
+  frontend:
+    build: ./frontend
+    image: cinevision-frontend
+    ports:
+      - "3000:80"
+
 networks:
   postgres:
     driver: bridge
-#  default:
-#    name: mongodb_network
+
 volumes:
   postgres:
   data:
