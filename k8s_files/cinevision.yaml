@@ -1,0 +1,232 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cinevision
+
+---
+
+# Eureka Server
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka-server
+  namespace: cinevision
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka-server
+  template:
+    metadata:
+      labels:
+        app: eureka-server
+    spec:
+      containers:
+      - name: eureka-server
+        image: imaneeamo/cinevision-eureka-server:latest
+        ports:
+        - containerPort: 8761
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka-server
+  namespace: cinevision
+spec:
+  selector:
+    app: eureka-server
+  ports:
+    - port: 8761
+      targetPort: 8761
+  type: ClusterIP
+
+---
+
+# API Gateway
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: cinevision
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api-gateway
+        image: imaneeamo/cinevision-api-gateway:latest
+        ports:
+        - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: cinevision
+spec:
+  selector:
+    app: api-gateway
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: LoadBalancer
+
+---
+
+# User Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: cinevision
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: imaneeamo/cinevision-user-service:latest
+        ports:
+        - containerPort: 8081
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: cinevision
+spec:
+  selector:
+    app: user-service
+  ports:
+    - port: 8081
+      targetPort: 8081
+  type: ClusterIP
+
+---
+
+# Movie Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-service
+  namespace: cinevision
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movie-service
+  template:
+    metadata:
+      labels:
+        app: movie-service
+    spec:
+      containers:
+      - name: movie-service
+        image: imaneeamo/cinevision-movie-service:latest
+        ports:
+        - containerPort: 8082
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: movie-service
+  namespace: cinevision
+spec:
+  selector:
+    app: movie-service
+  ports:
+    - port: 8082
+      targetPort: 8082
+  type: ClusterIP
+
+---
+
+# Email Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-service
+  namespace: cinevision
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: email-service
+  template:
+    metadata:
+      labels:
+        app: email-service
+    spec:
+      containers:
+      - name: email-service
+        image: imaneeamo/cinevision-email-service:latest
+        ports:
+        - containerPort: 8083
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-service
+  namespace: cinevision
+spec:
+  selector:
+    app: email-service
+  ports:
+    - port: 8083
+      targetPort: 8083
+  type: ClusterIP
+
+---
+
+# Frontend
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: cinevision
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: imaneeamo/cinevision-frontend:latest
+        ports:
+        - containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: cinevision
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: LoadBalancer
